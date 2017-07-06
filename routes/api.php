@@ -16,12 +16,13 @@ use Illuminate\Http\Request;
 Route::group(['prefix' => 'v1', 'as' => 'api.'], function(){
 	Route::resource('pokemons', 'PokemonsController', ['except' => ['create', 'edit']]);
     Route::post('/cadastro', 'UsersController@store');
+    Route::post('/login', 'Api\AuthController@authenticate');
 });
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
-Route::post('/access_token', 'Api\AuthController@accessToken');
+
 Route::post('/logout', 'Api\AuthController@logout')->middleware('auth:api');
 Route::get('hello', function (){
     return response()->json(['message' => 'Hello World']);

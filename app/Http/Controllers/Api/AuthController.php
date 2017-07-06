@@ -1,51 +1,49 @@
 <?php
+
 namespace App\Http\Controllers\Api;
-use App\Http\Controllers\Controller;
-use Illuminate\Foundation\Auth\AuthenticatesUsers;
+
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Lang;
+
+use App\Models\User;
+use App\Http\Requests;
+use App\Http\Controllers\Controller;
+use JWTAuth;
+use Hash;
+
 class AuthController extends Controller
 {
-    use AuthenticatesUsers;
-    public function accessToken(Request $request)
-    {
-        $this->validateLogin($request);
-        if ($this->hasTooManyLoginAttempts($request)) {
-            $this->fireLockoutEvent($request);
-            return $this->sendLockoutResponse($request);
-        }
-        $credentials = $this->credentials($request);
-        $token = Auth::guard('api')->attempt($credentials);
-        dd($token);
-        if ($token) {
-            return $this->sendLoginResponse($request, $token);
-        }
-        $this->incrementLoginAttempts($request);
-        return $this->sendFailedLoginResponse($request);
-    }
-    public function logout(Request $request)
-    {
-        Auth::guard('api')->logout();
-        return response()->json([], 204);
-    }
-    public function refreshToken(Request $request)
-    {
-        $token = Auth::guard('api')->refresh();
-        return $this->sendLoginResponse($request, $token);
-    }
-    protected function sendLoginResponse(Request $request, $token)
-    {
-        return response()->json(['token' => $token]);
-    }
-    protected function sendFailedLoginResponse(Request $request)
-    {
-        return response()->json(['message' => Lang::get('auth.failed')], 400);
-    }
-    protected function sendLockoutResponse(Request $request)
-    {
-        $seconds = $this->limiter()->availableIn($this->throttleKey($request));
-        $message = Lang::get('auth.throttle', ['seconds' => $seconds]);
-        return response()->json(['message' => $message], 403);
+    public function authenticate(Request $request) {
+      // Get only email and password from request
+      $credentials = $request->only('email', 'password');
+
+      // Get user by email
+      $user = User::where('email', $credentials['email'])->first();
+
+      // Validate User
+      if(!$user) {
+        return response()->json([
+          'error' => 'Invalid credentials'
+        ], 401);
+      }
+
+      // Validate Password
+      if (!Hash::check($credentials['password'], $user->password)) {
+          return response()->json([
+            'error' => 'Invalid credentials'
+          ], 401);
+      }
+
+      // Generate Token
+      $token = JWTAuth::fromUser($user);
+
+      // Get expiration time
+      $objectToken = JWTAuth::setToken($token);
+      $expiration = JWTAuth::decode($objectToken->getToken())->get('exp');
+
+      return response()->json([
+        'access_token' => $token,
+        'token_type' => 'bearer',
+        'expires_in' => JWTAuth::decode()->get('exp')
+      ]);
     }
 }
