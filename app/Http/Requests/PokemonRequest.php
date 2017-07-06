@@ -26,9 +26,9 @@ class PokemonRequest extends FormRequest
         return [
             'nome' => 'required',
             'tipo' => 'required',
-            'ataque' => 'required',
-            'defesa' => 'required',
-            'agilidade' => 'required',
+            'ataque' => 'required|integer',
+            'defesa' => 'required|integer',
+            'agilidade' => 'required|integer',
         ];
     }
 }

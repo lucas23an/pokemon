@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\PokemonRequest;
 use App\Util\Messages;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class PokemonsController extends Controller
 {
@@ -23,7 +24,7 @@ class PokemonsController extends Controller
     */
     public function index()
     {
-    	return $this->pokemonService->all();
+    	return response(['data' => $this->pokemonService->all()]);
     }
 
     /*
@@ -31,9 +32,15 @@ class PokemonsController extends Controller
 	*
 	* @param $pokemon
     */
-    public function show(Pokemons $pokemon)
+    public function show($id)
     {
-    	return $pokemon->find($pokemon);
+        $pokemon = $this->pokemonService->show($id);
+
+        if (empty($pokemon)) {
+            return response(['data' => ['message' => Messages::NOT_FOUND]], Response::HTTP_NOT_FOUND);
+        }
+
+    	return response(['data' => $pokemon]);
     }
 
     /*
@@ -45,7 +52,7 @@ class PokemonsController extends Controller
     {
     	$this->pokemonService->store($request);
 
-    	return response(Messages::SUCCESS, 201);
+    	return response(['data' => ['message' => Messages::SUCCESS]], Response::HTTP_CREATED);
     }
 
     /*
@@ -56,9 +63,15 @@ class PokemonsController extends Controller
     */
     public function update(PokemonRequest $request, $id)
     {
+        $pokemon = $this->pokemonService->show($id);
+
+        if (empty($pokemon)) {
+            return response(['data' => ['message' => Messages::NOT_FOUND]], Response::HTTP_NOT_FOUND);
+        }
+
     	$this->pokemonService->update($request, $id);
 
-    	return response(Messages::UPDATE, 201);
+    	return response(['data' => ['message' => Messages::UPDATE]]);
     }
 
     /*
@@ -66,8 +79,16 @@ class PokemonsController extends Controller
     *
     * @param $id
     */
-    public function delete($id)
+    public function destroy($id)
     {
+        $pokemon = $this->pokemonService->show($id);
 
+        if (empty($pokemon)) {
+            return response(['data' => ['message' => Messages::NOT_FOUND]], Response::HTTP_NOT_FOUND);
+        }
+
+        $this->pokemonService->destroy($id);
+
+        return response(['data' => ['message' => Messages::DELETE]]);
     }
 }
