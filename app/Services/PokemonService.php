@@ -22,6 +22,11 @@ class PokemonService extends Service
 		return $this->pokemonModel->all();
 	}
 
+    /*
+     * Salva os dados do pokemon.
+     *
+     * @param $request
+     */
 	public function store(PokemonRequest $request)
 	{
 		$pokemon = $this->pokemonModel->create($request->all());
@@ -29,16 +34,36 @@ class PokemonService extends Service
 		return $pokemon;
 	}
 
+	/*
+	 * Atualiza os dados do pokemon.
+	 *
+	 * @param $request
+	 * @param $id
+	 */
 	public function update(PokemonRequest $request, $id)
 	{
-		$pokemon = $this->pokemonModel->findOrFail($id)->update($request->all());
+		$pokemon = $this->pokemonModel->find($id)->update($request->all());
 
 		return $pokemon;
 	}
 
+	/*
+	 * Lista os dados de um pokemon específico.
+	 *
+	 * @param $id
+	 */
 	public function show($id)
-	{
-		dd($id);
-		return $this->pokemonModel->findOrFail($id);
+    {
+		return $this->pokemonModel->find($id);
 	}
+
+	/*
+	 * Exclui um pokemon.
+	 *
+	 * @param $id
+	 */
+	public function destroy($id)
+    {
+        $this->pokemonModel->find($id)->delete();
+    }
 }

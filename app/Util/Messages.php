@@ -4,9 +4,11 @@ namespace App\Util;
 
 class Messages
 {
-	CONST SUCCESS = "Pokemon salvo com sucesso";
+	const SUCCESS = "Registro salvo com sucesso.";
 
-	CONST UPDATE = "Pokemon alterado com sucesso";
+    const UPDATE = "Registro alterado com sucesso.";
 
-	CONST DELETE = "Pokemon excluído com sucesso";
+    const DELETE = "Registro excluído com sucesso.";
+
+    const NOT_FOUND = "Registro não encontrado.";
 }
