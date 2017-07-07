@@ -43,7 +43,7 @@ class AuthController extends Controller
       return response()->json([
         'access_token' => $token,
         'token_type' => 'bearer',
-        'expires_in' => JWTAuth::decode()->get('exp')
+        'expires_in' => JWTAuth::decode($objectToken->getToken())->get('exp')
       ]);
     }
 }
